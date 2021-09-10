@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+  <style>
+.gradient-text {
+background-color: #6c36d8;
+background-image: linear-gradient(
+    45deg,
+    #ffc675 50%,
+    #ff8324 50%
+  );
+  background-size: 270%;
+  background-repeat: repeat;
+  background-position: top right;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; 
+  -moz-background-clip: text;
+  -moz-text-fill-color: transparent;
+
+  
+  animation: button-animation 0.65s 0.15s ease-out forwards;
+}
+
+a:hover, a:hover span{
+    animation: button-animation-rev 0.65s ease-out forwards;
+}
+
+a:hover {
+  box-shadow: 3px 2px 10px 1px rgba(0,0,0,0.15);
+  transition: 0.5s;
+}
+
+@keyframes button-animation {
+  0% {
+    background-position: top right;
+  }
+  100% {
+    background-position: top left;
+  }
+}
+
+@keyframes button-animation-rev {
+  0% {
+    background-position: top left;
+  }
+  100% {
+    background-position: top right;
+  }
+}
+
+body {
+  background-color: #fcfdfc;
+}
+
+a {
+  margin-top: 1em;
+  margin-top: calc(15vh - 3em);
+  margin-left: auto;
+  margin-right: auto;
+  background-image: linear-gradient(45deg, #ff8324  50%, #ffc675 50%);
+  background-size: 270%;
+  background-repeat: repeat;
+  background-position: top right;
+  animation: button-animation 0.65s 0.15s ease-out forwards;
+  display: table;
+  border-radius: 0.5em;
+  text-decoration: none;
+  box-shadow: 7px 4px 20px 1px rgba(0,0,0,0.15);
+  padding: 1.5em 0;
+  cursor: pointer;
+}
+
+a span {
+  font-family: "Archivo Black", sans-serif;
+  font-weight: normal;
+  font-size: 3em;
+  text-align: center;
+  margin-bottom: 0;
+  margin-bottom: -0.25em;
+  width: 100%;
+  padding: 0 1.5em;
+}
+
+body {
+  background-color: #fdd799; 
+}
+
+div.b {
+  text-align: center;
+  vertical-align: text-top;
+
+  background-color: red;
+ 
+  background-image: linear-gradient(0deg, #636965, #ff8324);
+
+  background-size: 110%;
+  background-repeat: repeat;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; 
+  -moz-background-clip: text;
+  -moz-text-fill-color: transparent;
+}
+h10 {
+  font-family: "Archivo Black", sans-serif;
+  font-weight: normal;
+  font-size: 6em;
+  text-align: center;
+  margin-bottom: 0;
+  margin-bottom: -0.25em;
+}
+h11 {
+  font-family: "Archivo Black", sans-serif;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: left;
+}
+
+ 	.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+  
+</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+<body>
+<div class="b" id="e">
+<h10>Game Title</h10>
+<br />
+<br />
+<h11>Eric Yang, Andrew Bourinski, Carl Hu, Joshua Huntzinger </h11>
+<br />
+<br />
+<br />
+
+
+<a>
+  <span class="gradient-text" onclick="f();">Start Game</span>
+</a>
+
+
+<link href="https://fonts.googleapis.com/css?family=Archivo+Black&display=swap" rel="stylesheet">
+</div>
+  <main style="display: none" id="main"></main>
+<script>
+  function f(){
+   	document.getElementById("e").innerHTML = ""; 
+    document.getElementById("main").style.display = "";
+  }
+  class Tree{
+       	constructor(pnum){
+          // name, gen amt, cost, prereq, angle, distance, size
+          // read this before adding:
+          /*
+        		1st thing is name,
+            2nd thing is amount of knowledge points (currency) it generates per turn
+            3rd thing is how many knowledge points it requires to research it 
+            4th thing is prereqs, you put the names of the prereqs
+            5th Angle of location (0-360)
+            6th thing is distance (Ring # you want to be in)
+            7th thing is you don't have to care
+          */
+          this.pnum = pnum;
+          this.size = 60;
+          this.mxsz = 65;
+          this.gap = 70;
+          this.kp = 9;
+          this.press = 0;
+          this.down = 0;
+          this.uniq = 0;
+          this.turn = 0;
+          this.max_turns = 10;
+         	this.tech = [
+          	["Candle", 1, 0, [], 0, 0, this.size],
+            ["Wood", 12, 7, ["Candle"], 120, 1, this.size],
+            ["Paper", 12, 14, ["Wood"], 100, 2, this.size],
+            ["Wooden Hut", 12, 21, ["Paper"], 70, 3, this.size],
+            ["Log Cabin", 12, 35, ["Wooden Hut", "Lightbulb"], 20, 5, this.size],
+            ["Oil Lamp", 12, 7, ["Candle"], 0, 1, this.size],
+            ["Portable Lantern", 13, 20, ["Oil Lamp"], 0, 2, this.size],
+            ["Electricity", 20, 42, ["Portable Lantern"], 0, 3, this.size],
+            ["Lightbulb", 30, 68, ["Electricity", "Hourglass"], 10, 4, this.size],
+            ["Computer", 50, 100, ["Electricity"], 350, 4, this.size],
+            ["Herbal Medicine", 20, 15, ["Candle"], 180, 1, this.size],
+            ["Penicillin", 20, 45, ["Lobotomy Stick"], 180, 3, this.size],
+            ["Lobotomy Stick", 15, 12*2, ["Herbal Medicine"], 180, 2, this.size],
+            ["Cancer Cure", 100, 50*5, ["Vaccine"], 180, 5, this.size],
+            ["Smelter", 12, 14, ["Candle"], 240, 1, this.size],
+            ["Iron Tools", 12, 14*2, ["Smelter"], 240, 2, this.size],
+            ["Cannon", 12, 14*3, ["Iron Tools"], 240, 3, this.size],
+            ["Glass", 15, 19, ["Candle"], 55, 1, this.size],
+            ["Glasses", 15, 19*2, ["Glass"], 40, 2, this.size],
+            ["Hourglass", 15, 19*3, ["Glasses"], 25, 3, this.size],
+            ["Coal", 6, 8, ["Candle"], 300, 1, this.size],
+            ["Steam Engine", 14, 19*2, ["Coal"], 300, 2, this.size],
+            ["Train", 17, 24*3, ["Steam Engine"], 290, 3, this.size],
+            ["Car", 15, 18*3, ["Steam Engine"], 310, 3, this.size],
+            ["Airplane", 25, 35*4, ["Train", "Car"], 312, 4, this.size],
+            ["Electric Car", 20, 27*4, ["Car", "Electricity"], 327, 4, this.size],
+            ["Train Gun", 15, 80, ["Cannon", "Train"], 270, 4, this.size],
+            ["Death Star", 150, 375, ["Train Gun", "Computer", "Airplane"], 320, 5, this.size],
+            ["Book", 15, 30, ["Paper"], 120, 3, this.size],
+            ["Medicine Drawer", 17, 72, ["Book", "Herbal Medicine"], 140, 4, this.size],
+            ["Vaccine", 69, 132, ["Penicillin"], 180, 4, this.size],
+            ["Sword", 20, 54, ["Iron Tools", "Lobotomy Stick"], 210, 3, this.size],
+            ["Sword Cannon", 25, 92, ["Sword", "Cannon"], 225, 4, this.size],
+            ["Chemical Warfare", 30, 135, ["Penicillin", "Sword Cannon"], 203, 5, this.size]
+            ]
+          ;
+          // Convert prereq names to prereq ids
+          for(let i = 0; i < this.tech.length; i++){
+						for(let j = 0; j < this.tech[i][3].length; j++){
+            	for(let k = 0; k < this.tech.length; k++){
+								if(this.tech[k][0] == this.tech[i][3][j]){
+                	this.tech[i][3][j] = k; 
+                }
+              }
+            }
+          }
+          this.active = new Array(this.tech.length).fill(0);
+          this.active[0] = 1;
+          this.current = -1;
+        }
+        draw(cx, cy){
+          if(this.turn > this.max_turns){
+           	return; 
+          }
+          this.down = 0;
+          if(this.press == 1 && !mouseIsPressed){
+           	this.press = 0; 
+          }
+          if(this.press == 0 && mouseIsPressed){
+           	this.press = 1;
+            this.down = 1;
+          }
+          textSize(60);
+          noStroke();
+          textAlign(LEFT, LEFT);
+          fill(0);
+          textStyle(BOLD);
+          text("Player " + this.pnum.toString(), 20, 70);
+          textSize(24);
+          textStyle(NORMAL);
+          text("Knowledge Points (KP): " + this.kp.toString(), 300, 40);
+          text("Uniqueness Score: " + this.uniq.toString(), 650, 40);
+          text("Turn " + this.turn.toString() + "/" + this.max_turns.toString(), 20, 100);
+          if(this.current != -1){ // BUY SCREEN
+            push();
+            translate(cx - width/2, cy - height/2);
+            fill(255, 232, 189);
+            rect(50, 120, width-50, height-100);
+            fill(0);
+            // X BUTTON
+            noStroke();
+            textSize(24);
+            if(dist(mouseX, mouseY, 80, 170) < 30){
+              fill(255, 0, 0);
+              if(this.down){
+             		this.current = -1;
+                pop();
+                return;
+            	}
+            }
+            textStyle(BOLD);
+            text("X", 80, 170);
+            textStyle(NORMAL);
+            textAlign(CENTER, CENTER);
+            textSize(36);
+            fill(0);
+            // TITLE
+            text(this.tech[this.current][0], width/2, 170);
+            // STATS
+            textAlign(LEFT, LEFT);
+            textSize(24);
+            text("Cost: ", 100, 270);
+            text("KP per turn: ", 100, 320);
+            textStyle(BOLD);
+            text(this.tech[this.current][2].toString() + " KP", 300, 270);
+            text(this.tech[this.current][1].toString() + " KP", 300, 320);
+            textStyle(NORMAL);
+            // BUY BUTTON
+            let btn_str = "Click to buy!!!";
+            let can_buy = 1;
+            fill(255, 170, 100); 
+            if(this.active[this.current]){
+             	btn_str = "Already bought"; 
+              can_buy = 0;
+              fill(150);
+            }else if(this.kp < this.tech[this.current][2]){ // for not enough money
+             	btn_str = "Not enough knowledge points";
+              can_buy = 0;
+              fill(150);
+            }
+            rectMode(CORNERS);
+            if(can_buy && mouseX >= 100 && mouseX <= width-100 && mouseY >= height-250 && mouseY <= height-150){
+           		fill(240, 130, 70);
+            	if(this.down){
+                this.active[this.current] = 1;
+                this.kp -= this.tech[this.current][2];
+                this.current = -1;
+              }
+            }
+            rect(100, height-250, width-100, height-150);
+            textAlign(CENTER, CENTER);
+            textSize(24);
+            fill(0);
+            text(btn_str, width/2, height-200);
+            pop();
+           	return;
+          }
+          noFill();
+          for(let i = 1; i <= 5; i++){
+            stroke(255);
+           	circle(cx, cy, this.gap * i * 2); 
+          }
+          stroke(0);
+          for(let i = 0; i < this.tech.length; i++){ // Draw lines (prereqs
+          	for(let j = 0; j < this.tech[i][3].length; j++){
+              let t2 = this.tech[i][3][j];
+             	let v1 = p5.Vector.fromAngle(radians(this.tech[i][4]), this.tech[i][5] * this.gap);
+              let v2 = p5.Vector.fromAngle(radians(this.tech[t2][4]), this.tech[t2][5] * this.gap);
+              push();
+              translate(cx, cy);
+              line(v1.x, v1.y, v2.x, v2.y);
+              pop();
+            }
+          }
+        	for(let i = 0; i < this.tech.length; i++){ // Draw Circles
+         		push();
+            let v = p5.Vector.fromAngle(radians(this.tech[i][4]), this.tech[i][5] * this.gap);
+            translate(cx, cy);
+            noStroke();
+            let can_access = 1;
+            for(let j = 0; j < this.tech[i][3].length; j++){
+              if(!this.active[this.tech[i][3][j]]){
+                can_access = 0;
+              }
+            }
+            if(!can_access){
+              fill(200);
+            }else if(this.active[i]){
+            	fill(255, 131, 36);
+            }else{
+              if(this.tech[i][2] > this.kp){
+               	fill(200); 
+              }else{
+             		fill(255, 170, 100); 
+              }
+            }
+            if(can_access && dist(cx + v.x, cy + v.y, mouseX, mouseY) <= this.tech[i][6]/2){
+              if(this.down){
+              	this.current = i;
+              }
+            	this.tech[i][6] = this.mxsz;
+            }else{
+             	this.tech[i][6] = this.size;
+            }
+            circle(v.x, v.y, this.tech[i][6]);
+            textAlign(CENTER, CENTER);
+            rectMode(CENTER);
+            fill(0);
+            textSize(11);
+            if(can_access){
+              if(textWidth(this.tech[i][0]) >= this.tech[i][6]-3){
+                text(this.tech[i][0], v.x+1, v.y-textAscent()/2, this.tech[i][6]);
+              }else{
+                text(this.tech[i][0], v.x+1, v.y, this.tech[i][6]);
+              }
+            }
+            pop();
+          }
+        }
+        add_kp(){
+        	for(let i = 0; i < this.active.length; i++){
+           	this.kp += this.active[i] * this.tech[i][1];
+          }
+        }
+        upd_uniq(t1, t2, t3, t4){
+          this.uniq = 0;
+        	for(let i = 0; i < this.active.length; i++){
+						if(!this.active[i]) continue;
+            let cnt = t1.active[i] + t2.active[i] + t3.active[i] + t4.active[i];
+            if(cnt == 1) this.uniq += 10;
+            if(cnt == 2) this.uniq += 4;
+            if(cnt == 3) this.uniq += 1;
+          }
+        }
+      }
+      let p = [new Tree(1), new Tree(2), new Tree(3), new Tree(4)];
+      let cur_player = 0;
+      function setup(){ // Setup Initial
+        createCanvas(900, 900);
+        textFont('Georgia');
+        p[cur_player].add_kp();
+        p[cur_player].turn++;
+      }
+      let nxt_press = 0;
+      const MX_FRAME = 10;
+      let out_frame = -1;
+      let in_frame = -1;
+      function draw(){ // Looped
+        background(253, 215, 153);
+        if(out_frame >= 0){
+          let mpx = map(out_frame, 0, MX_FRAME, -width/2, width/2);
+          p[cur_player].draw(mpx, height/2);
+         	if(out_frame == 0){
+          	in_frame = MX_FRAME;
+            cur_player = (cur_player+1)%4;
+            p[cur_player].add_kp();
+            p[cur_player].upd_uniq(p[0], p[1], p[2], p[3]);
+            p[cur_player].turn++;
+          }
+          out_frame--;
+          return;
+        }
+        if(in_frame >= 0){
+         	let mpx = map(in_frame, 0, MX_FRAME, width/2, width+width/2);
+          p[cur_player].draw(mpx, height/2);
+          in_frame--;
+          return;
+        }
+        if(p[cur_player].turn > p[cur_player].max_turns){
+          textSize(48);
+          textAlign(CENTER);
+          fill(0);
+          noStroke();
+          text("The game is over!", width/2, 100);
+          let pwin = 0;
+          for(let i = 1; i < 4; i++){
+           	if(p[i].uniq > p[pwin].uniq){
+              pwin = i;
+            }
+          }
+          text("The winner is: Player " + (pwin+1).toString(), width/2, 200);
+          textSize(30);
+          text("Player 1 has " + p[0].uniq.toString() + " uniqueness points", width/2, 325);
+          text("Player 2 has " + p[1].uniq.toString() + " uniqueness points", width/2, 375);
+          text("Player 3 has " + p[2].uniq.toString() + " uniqueness points", width/2, 425);
+          text("Player 4 has " + p[3].uniq.toString() + " uniqueness points", width/2, 475);
+          return;
+        }
+        p[cur_player].draw(width/2, height/2);
+        p[cur_player].upd_uniq(p[0], p[1], p[2], p[3]);
+        rectMode(CORNERS);
+        noStroke();
+        fill(220);
+        if(mouseX >= width-150 && mouseX <= width-1 && mouseY >= height-70 && mouseY <= height-1){
+          fill(200);
+          if(mouseIsPressed){
+            fill(170);
+            if(!nxt_press){
+              out_frame = MX_FRAME;
+            }
+           	nxt_press = 1; 
+          }else{
+           	nxt_press = 0; 
+          }
+        }
+        rect(width-150, height-70, width-1, height-1);
+        textAlign(CENTER);
+        noStroke();
+        fill(0);
+        text("Next Turn", width-75, height-35);
+      }
+</script>
+  
+</body>
+</html>
